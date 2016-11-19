@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+
+\usepackage{geometry, amsmath, amsthm, latexsym, amssymb, graphicx}
+\geometry{margin=0.8in, headsep=0.25in}
+
+\parindent 0in
+\parskip 12pt
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{center}
+{\large Project Proposal for SDS385 Statistical Models for Big Data}
+
+{\LARGE \bf Applying Kalman Filter to Denoise GPS Data}
+
+Kai Liu (KL25756)
+\end{center}
+
+\textbf{Goal}\\
+Nowsdays, GPS is widely used in vehicles, which can provide estimates of position of vehicles within a few meters. However, the GPS estimate can be noisey; readings "jump around" rapidly, though remaining within a few meters of the true position. Therefore, in order to get the accurate position of vehicles, filtering noise becomes very necessary. In this project, I will denoise GPS data using Kalman filter method.
+
+Kalman filter is an optimal estimation method that has been widely used in smoothing noisy signals, generating non-observable states, and predicting future states. Kalman filter estimates the position in two stages: prediction and update. In the prediction stage, it produces a new position estimate based on the previous position and the dynamic model. And then in the update stage, a new measurement of the vehicle's position is taken from GPS, and the estimate is updated using a weighed average with more weight being given to estimates with higher certainty. Details about Kalman filter method are given in Method section.
+
+\textbf{Method}\\
+In Kalman filter, it is assumed that the evolution and measurement models are linear. That is,
+$$x_t = F_t x_{t-1} + B_t u_t + \omega_t,$$
+$$z_t = H_t x_t + v_t,$$
+where $x_t$ is the state vector containing the terms of interest (i.e. location, velocity) at time $t$; $u_t$ is the vector containing any control inputs (i.e. steering angle); $F_t$ is the state transition matrix applying the effect of each state parameter at time $t-1$ on the state at time $t$; $B_t$ is the control input matrix which applies the effect of each control input in vector $u_t$ on the state vector $x_t$; $\omega_t$ is the vector containing process noise for each variable in the state vector, and the noises are assumed to follow Gaussian distributions with known means 0 and covariances matrices $Q_t$; $z_t$ is the vector of measurement; $H_t$ is the transformation matrix that maps the state vector variables into the measurements; and $v_t$ is the vector including the measurement noise for each observation, and it is also assumed that the noises are Gaussian with zero mean and covariances matrices $R_t$. 
+
+Kalman filter involves two steps: prediction step and update step. The prediction  is based on the previous states and dynamic model. The equations are
+$$\hat{x}_{t|t-1} = F_t \hat{x}_{t-1|t-1} + B_t u_t,$$
+$$P_{t|t-1} = F_t P_{t-1|t-1}F_t^T + Q_t,$$
+where $\hat{x}_{t|t-1}$, $P_{t|t-1}$ are priori state and covariance estimates, respectively.
+The update starts after a new measurement is available. The equations are given by
+$$K_t = P_{t|t-1} H_t^T (H_t P_{t|t-1} H_t^T + R_t)^{-1},$$
+$$\hat{x}_{t|t} = \hat{x}_{t|t-1} + K_t (z_t - H_t \hat{x}_{t|t-1}),$$
+$$P_{t|t} = P_{t|t-1} (I - K_t H_t),$$
+where $\hat{x}_{t|t}$, $P_{t|t}$ are posteriori state and coveriance estimates, respectively. These two steps are repeated continuously to update the current state.
+\end{document}
