@@ -1,5 +1,13 @@
+##########
+# This file contains all data process and analysis code for smoothing GPS data
+# by Kalman filter.
+
+
+# import functions
 source('~/GitProjects/denoising_GPS_data/kalman_filter_functions.R')
 
+
+# ------ process data and store data chunks into separated csv files -------
 
 # read data
 setwd('~/GitProjects/denoising_GPS_data/')
@@ -62,7 +70,8 @@ for (i in 1:length(index)) {
 }
 
 
-# ---------------------- run Kalman Filter -----------------------------
+# ---------------------- Smoothing GPS data -----------------------------
+
 # read data samples
 for (i in 379:1150) {
     csv.name <- paste('data/', i, '.csv', sep='')
@@ -117,6 +126,7 @@ P.results <- matrix(0, nrow=16, ncol=nrow(data))
 P.results[, 1] <- matrix(P.initial, ncol=1)
 
 
+# run Kalman filter
 for (i in 2:nrow(data)) {
     Xhat.initial <- location.results[, i-1]
     P.initial <- matrix(P.results[, i-1], ncol=4)
@@ -129,7 +139,7 @@ for (i in 2:nrow(data)) {
 
 location.results.t <- t(location.results)
 
-# plot
+# plot longitude and latitude vs time separately
 par(mfrow=c(2,1), mar=c(4,5,2,2))
 plot(data[,3], type='l', col='blue', lwd=3, bty='n', ylab='Longitude', xlab='Time')
 lines(location.results.t[,1], col='red', lwd=3)
@@ -138,16 +148,20 @@ title(main='Empirical Method')
 plot.ts(data[,4], type='l', col='blue', lwd=3, bty='n', ylab='Latitude', xlab='Time')
 lines(location.results.t[,2], col='red', lwd=3)
 
+# plot longitude vs latitude
 plot(data[,3], data[,4], bty='n', xlab='Longitude', ylab='Latitude')
 lines(location.results.t[, 1], location.results.t[, 2], col='red', lwd=3)
 
+# plot longitude and latitude on map
 plotGPS_png(location.results.t, long=1, lat=2, '289ss.png', width=1000, height=800)
 
+# plot convergence of variance of both longitude and latitude
 par(mfrow=c(2,1), mar=c(4,5,2,2))
 plot(P.results[1,], type='l', col='blue', lwd=3, bty='n', ylab='Variance', xlab='Time')
 lines(P.results[6, ], col='red', lwd=3)
 legend('topright', c('Variance of Longitude', 'Variance of Latitude'), lty=c(1,1), lwd=c(3,3), col=c('blue', 'red'))
 title(main='Empirical Method')
+
 
 #####################################################################
 # determine matrix Q and R using Autocovariance Least Square method #
@@ -192,7 +206,7 @@ location.results[, 1] <- Xhat.initial
 P.results <- matrix(0, nrow=16, ncol=nrow(data))
 P.results[, 1] <- matrix(P.initial, ncol=1)
 
-
+# run Kalman filter
 for (i in 2:nrow(data)) {
     Xhat.initial <- location.results[, i-1]
     P.initial <- matrix(P.results[, i-1], ncol=4)
@@ -205,7 +219,7 @@ for (i in 2:nrow(data)) {
 
 location.results.t <- t(location.results)
 
-# plot
+# plot longitude and latitude vs time separately
 par(mfrow=c(2,1), mar=c(4,5,2,2))
 plot(data[,3], type='l', col='blue', lwd=3, bty='n', ylab='Longitude', xlab='Time')
 lines(location.results.t[,1], col='red', lwd=3)
@@ -215,13 +229,15 @@ plot.ts(data[,4], type='l', col='blue', lwd=3, bty='n', ylab='Latitude', xlab='T
 lines(location.results.t[,2], col='red', lwd=3)
 
 
+# plot longitude vs latitude
 plot(data[,3], data[,4], bty='n', xlab='Longitude', ylab='Latitude')
 lines(location.results.t[, 1], location.results.t[, 2], col='red', lwd=3)
 
+# plot longitude and latitude on map
 plotGPS_png(location.results.t, long=1, lat=2, '289s.png', width=1000, height=800)
 
+# plot convergence of variance of both longitude and latitude
 plot(P.results[1,], type='l', col='blue', lwd=3, bty='n', ylab='Variance', xlab='Time', ylim=c(500,4000))
 lines(P.results[6, ], col='red', lwd=3)
 legend('topright', c('Variance of Longitude', 'Variance of Latitude'), lty=c(1,1), lwd=c(3,3), col=c('blue', 'red'))
 title(main='Empirical Method')
-
